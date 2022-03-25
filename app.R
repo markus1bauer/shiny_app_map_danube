@@ -83,7 +83,7 @@ theme_mb <- function(){
 
 ### a Header ------------------------------------------------------------------
 header <- dashboardHeader(
-  title = "DeichgrÃ¼nland Donau",
+  title = "Deichgrünland Donau",
   titleWidth = 300,
   tags$li(a(href = "https://github.com/markus1bauer", 
             icon("github", 
@@ -118,7 +118,8 @@ body <- dashboardBody(
   tags$style(
     type = "text/css", "#mymap {height: calc(70vh - 80px) !important;}"
     ),
-  leafletOutput("mymap")
+  leafletOutput("mymap"),
+  plotOutput("speciesRichness")
   )
 
 ### d Dashboard page ---------------------------------------------------------
