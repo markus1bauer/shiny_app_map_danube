@@ -22,12 +22,11 @@ library(htmltools)
 library(mapview)
 library(shiny)
 library(shinydashboard)
-library(rsconnect)
 
 ### Start ###
 rm(list = ls())
 setwd(here("data", "spatial"))
-setAccountInfo(name='markusbauer',
+rsconnect::setAccountInfo(name='markusbauer',
                token='BB9C744354C19D1217D8FAD42760C1ED',
                secret='5XG8BIuY7IF40mc6OO7TUSMzJbZEoe4lH5Q8aEGf')
 
@@ -190,7 +189,7 @@ server <- function(input, output) {
       group = "Plots"
     ) %>%
       
-      hideGroup(c("Plots", "HQ100"))
+      hideGroup(c("HQ100"))
     
     
   })
