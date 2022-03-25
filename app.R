@@ -183,7 +183,8 @@ server <- function(input, output) {
       fillOpacity = .5,
       popup = ~ paste0(
         "<b>", htmlEscape(location), "</b>", "<br/>",
-        "ID: ", htmlEscape(plot)
+        "ID: ", htmlEscape(plot), "</b>", "<br/>",
+        "Baujahr Deich:", htmlEscape(constructionYear)
       ),
       label = ~ paste0(location, " (ID: ", plot, ")"),
       group = "Plots"
