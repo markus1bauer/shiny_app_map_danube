@@ -83,7 +83,7 @@ theme_mb <- function(){
 
 ### a Header ------------------------------------------------------------------
 header <- dashboardHeader(
-  title = "Deichgrünland Donau",
+  title = "Deichgr?nland Donau",
   titleWidth = 300,
   tags$li(a(href = "https://github.com/markus1bauer", 
             icon("github", 
@@ -150,7 +150,7 @@ server <- function(input, output) {
       ### b Add layer control -------------------------------------------------
     addLayersControl(
       baseGroups = c("OSM", "Esri"),
-      overlayGroups = c("Plots", "HQ100"),
+      overlayGroups = c("Plots", "Dikes", "HQ100"),
       options = layersControlOptions(collapsed = FALSE)
     ) %>%
       addScaleBar() %>%
@@ -191,7 +191,23 @@ server <- function(input, output) {
       group = "Plots"
     ) %>%
       
-      hideGroup(c("HQ100"))
+      ### Dikes ####
+    addPolylines(
+      data = dikes, color = "black", opacity = 1, weight = 2,
+      label = ~ paste0(
+        "Baujahr: ", htmlEscape(BAUJAHR), ", Sanierung:",
+        htmlEscape(SANIERUNG)
+      ),
+      popup = ~ paste0(
+        "Baujahr: ", htmlEscape(BAUJAHR), "<br/>",
+        "Sanierung: ", htmlEscape(SANIERUNG)
+      ),
+      highlight = highlightOptions(weight = 2, color = "blue",
+                                   opacity = .8),
+      group = "Dikes"
+    ) %>%
+      
+      hideGroup(c("HQ100", "Dikes"))
     
     
   })
