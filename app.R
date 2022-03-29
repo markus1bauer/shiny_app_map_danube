@@ -25,26 +25,23 @@ library(shinydashboard)
 
 ### Start ###
 rm(list = ls())
-setwd(here("data", "spatial"))
 rsconnect::setAccountInfo(name='markusbauer',
                token='BB9C744354C19D1217D8FAD42760C1ED',
                secret='5XG8BIuY7IF40mc6OO7TUSMzJbZEoe4lH5Q8aEGf')
 
 ### Load data ###
-sites <- read_csv(here("data", "data_processed_sites_spatial.csv"),
+sites <- read_csv(here("data", "processed", "data_processed_sites.csv"),
                  col_names = TRUE,
                  na = c("na", "NA"), col_types =
                    cols(
                      .default = "?",
                      plot = "c",
-                     surveyYear = "f"
+                     surveyYear = "d"
                    )
-) %>%
-  select(plot, location, exposition, side,
-         surveyYear, constructionYear,
-         speciesRichness)
+)
 
-plots <- st_read("sites_epsg4326.shp") %>%
+plots <- st_read(here("data", "processed", "spatial",
+                      "sites_epsg4326.shp")) %>%
   rename(location = locatin, constructionYear = cnstrcY) %>%
   mutate(plot = as.character(as.numeric(plot)))
 
@@ -53,7 +50,8 @@ wms_flood <- "https://www.lfu.bayern.de/gdi/wms/wasser/ueberschwemmungsgebiete?"
 
 ffh_area <- "https://www.lfu.bayern.de/gdi/wms/natur/schutzgebiete?"
 
-dikes <- st_read("dikes_epsg4326.shp")
+dikes <- st_read(here("data", "processed", "spatial",
+                      "dikes_epsg4326.shp"))
 
 
 ### Create theme ###
@@ -107,6 +105,7 @@ sidebar <- dashboardSidebar(
         inputId = "response", 
         label = "Zeige:",
         choices = c("Artenzahl" = "speciesRichness",
+                    "Rote-Liste-Arten" = "rlgRichness",
                     #"FFH-Lebensraumtyp" = "ffh",
                     "Biotopwertpunkte" = "biotopePoints")
       )
@@ -232,6 +231,14 @@ server <- function(input, output) {
   ### d Plot -------------------------------------------------------
   
   #### Generate data in reactive ####
+  if(input$response == "speciesRichness"){
+    data <- sites %>%
+      select(plot, speciesRichness)
+  } else {
+    data <- sites %>%
+      select(plot, biotopePoints)
+  }
+  
   temp <- reactive({
     
     id <- input$mymap_marker_click$id
@@ -244,7 +251,7 @@ server <- function(input, output) {
   output$plot <- renderPlot({
     
     ggplot(data = temp(), aes(x = surveyYear, y = speciesRichness)) +
-      geom_point(color = "black") +
+      geom_point() +
       scale_y_continuous(limits = c(0, 40)) +
       labs(x = "Aufnahmejahr", y = "Artendichte (25 m²)") +
       theme_mb()
