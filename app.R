@@ -31,7 +31,7 @@ rsconnect::setAccountInfo(name='markusbauer',
                secret='5XG8BIuY7IF40mc6OO7TUSMzJbZEoe4lH5Q8aEGf')
 
 ### Load data ###
-data <- read_csv(here("data", "data_processed_sites_spatial.csv"),
+sites <- read_csv(here("data", "data_processed_sites_spatial.csv"),
                  col_names = TRUE,
                  na = c("na", "NA"), col_types =
                    cols(
@@ -41,20 +41,23 @@ data <- read_csv(here("data", "data_processed_sites_spatial.csv"),
 ) %>%
   select(plot, location, exposition, side,
          surveyYear, constructionYear,
-         speciesRichness) %>%
-  pivot_wider(id_cols = c("plot", "location", "exposition", "side",
-                          "constructionYear"),
-              names_from = surveyYear,
-              names_prefix = "sr_",
-              values_from = speciesRichness)
-sites <- st_read("sites_epsg4326.shp") %>%
+         speciesRichness)
+
+plots <- st_read("sites_epsg4326.shp") %>%
   select(plot, geometry) %>%
   mutate(plot = as.character(as.numeric(plot))) %>%
   right_join(data, by = "plot")
+rm(data)
+
 wms_flood <- "https://www.lfu.bayern.de/gdi/wms/wasser/ueberschwemmungsgebiete?"
-ffh_area <- st_read("ffh_area_epsg4326.shp")
+
+#ffh_area <- st_read("ffh_area_epsg4326.shp")
+ffh_area <- "https://www.lfu.bayern.de/gdi/wms/natur/schutzgebiete?"
+
 dikes <- st_read("dikes_epsg4326.shp")
 
+
+### Create theme ###
 theme_mb <- function(){
   theme(
     panel.background = element_rect(fill = "white"),
@@ -83,7 +86,7 @@ theme_mb <- function(){
 
 ### a Header ------------------------------------------------------------------
 header <- dashboardHeader(
-  title = "Deichgr?nland Donau",
+  title = "Deichgruenland Donau",
   titleWidth = 300,
   tags$li(a(href = "https://github.com/markus1bauer", 
             icon("github", 
@@ -119,7 +122,7 @@ body <- dashboardBody(
     type = "text/css", "#mymap {height: calc(70vh - 80px) !important;}"
     ),
   leafletOutput("mymap"),
-  plotOutput("speciesRichness")
+  plotOutput("plot")
   )
 
 ### d Dashboard page ---------------------------------------------------------
@@ -138,10 +141,10 @@ ui <- dashboardPage(
 
 server <- function(input, output) {
   
+  ### a Set up map -------------------------------------------------------
   output$mymap <- renderLeaflet({
-    sites %>%
-      
-      ### a Set up map -------------------------------------------------------
+    
+    plots %>%
     leaflet() %>%
       addTiles(group = "OSM") %>%
       addProviderTiles("Esri.WorldTopoMap", group = "Esri") %>%
@@ -150,10 +153,12 @@ server <- function(input, output) {
       ### b Add layer control -------------------------------------------------
     addLayersControl(
       baseGroups = c("OSM", "Esri"),
-      overlayGroups = c("Plots", "Dikes", "HQ100"),
+      overlayGroups = c("Plots", "Dikes", "FFH Areas", "HQ100"),
       options = layersControlOptions(collapsed = FALSE)
     ) %>%
+      
       addScaleBar() %>%
+      
       addMeasure(
         primaryLengthUnit = "kilometers",
         secondaryLengthUnit = FALSE,
@@ -162,6 +167,7 @@ server <- function(input, output) {
         primaryAreaUnit = "sqkilometers",
         localization = "en"
       ) %>%
+      
       addMiniMap(
         toggleDisplay = TRUE,
         tiles = providers$OSM,
@@ -170,28 +176,21 @@ server <- function(input, output) {
       ) %>%
     
       ### c Add layers -------------------------------------------------------
-    #### HQ 100 ####
-    addWMSTiles(
-      baseUrl = wms_flood,
-      layers = "hwgf_hq100",
-      group = "HQ100",
-      options = WMSTileOptions(format = "image/png", transparent = TRUE)
-    ) %>%
-      
+    
       #### Plots ####
     addCircleMarkers(
-      radius = 5, color = "red", weight = 2, opacity = 1,
+      data = plots, radius = 5, color = "red", weight = 2, opacity = 1,
       fillOpacity = .5,
       popup = ~ paste0(
         "<b>", htmlEscape(location), "</b>", "<br/>",
         "ID: ", htmlEscape(plot), "</b>", "<br/>",
-        "Baujahr Deich:", htmlEscape(constructionYear)
+        "Baujahr Deich: ", htmlEscape(constructionYear)
       ),
       label = ~ paste0(location, " (ID: ", plot, ")"),
       group = "Plots"
     ) %>%
       
-      ### Dikes ####
+      #### Dikes ####
     addPolylines(
       data = dikes, color = "black", opacity = 1, weight = 2,
       label = ~ paste0(
@@ -207,8 +206,45 @@ server <- function(input, output) {
       group = "Dikes"
     ) %>%
       
-      hideGroup(c("HQ100", "Dikes"))
+      #### FFH area ####
+    addWMSTiles(
+      baseUrl = ffh_area,
+      layers = "fauna_flora_habitat_gebiet",
+      group = "FFH Areas",
+      options = WMSTileOptions(format = "image/png", transparent = TRUE,
+                               opacity = .7)
+    ) %>%
+      
+      #### HQ 100 ####
+    addWMSTiles(
+      baseUrl = wms_flood,
+      layers = "hwgf_hq100",
+      group = "HQ100",
+      options = WMSTileOptions(format = "image/png", transparent = TRUE,
+                               opacity = .7)
+    ) %>%
+      
+      ### Hide groups ####
+      hideGroup(c("Dikes", "FFH Areas", "HQ100"))
     
+  })
+  
+  ### d Plot -------------------------------------------------------
+  
+  #### Generate data in reactive ####
+  temp <- reactive({
+    
+    plot <- input$mymap_marker_click$plot
+    sites[sites$plot %in% plot,]
+    
+  })
+  
+  #### Create plot ####
+  output$plot <- renderPlot({
+    
+    ggplot(data = temp(), aes(x = surveyYear, y = speciesRichness)) +
+      geom_point() +
+      theme_mb()
     
   })
 }
