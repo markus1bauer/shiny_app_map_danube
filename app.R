@@ -36,7 +36,8 @@ sites <- read_csv(here("data", "data_processed_sites_spatial.csv"),
                  na = c("na", "NA"), col_types =
                    cols(
                      .default = "?",
-                     plot = "c"
+                     plot = "c",
+                     surveyYear = "f"
                    )
 ) %>%
   select(plot, location, exposition, side,
@@ -44,14 +45,12 @@ sites <- read_csv(here("data", "data_processed_sites_spatial.csv"),
          speciesRichness)
 
 plots <- st_read("sites_epsg4326.shp") %>%
-  select(plot, geometry) %>%
-  mutate(plot = as.character(as.numeric(plot))) %>%
-  right_join(data, by = "plot")
-rm(data)
+  rename(location = locatin, constructionYear = cnstrcY) %>%
+  mutate(plot = as.character(as.numeric(plot)))
+
 
 wms_flood <- "https://www.lfu.bayern.de/gdi/wms/wasser/ueberschwemmungsgebiete?"
 
-#ffh_area <- st_read("ffh_area_epsg4326.shp")
 ffh_area <- "https://www.lfu.bayern.de/gdi/wms/natur/schutzgebiete?"
 
 dikes <- st_read("dikes_epsg4326.shp")
@@ -179,8 +178,9 @@ server <- function(input, output) {
     
       #### Plots ####
     addCircleMarkers(
-      data = plots, radius = 5, color = "red", weight = 2, opacity = 1,
-      fillOpacity = .5,
+      data = plots,
+      layerId = ~unique(plot),
+      radius = 5, color = "red", weight = 2, opacity = 1, fillOpacity = .5,
       popup = ~ paste0(
         "<b>", htmlEscape(location), "</b>", "<br/>",
         "ID: ", htmlEscape(plot), "</b>", "<br/>",
@@ -234,8 +234,9 @@ server <- function(input, output) {
   #### Generate data in reactive ####
   temp <- reactive({
     
-    plot <- input$mymap_marker_click$plot
-    sites[sites$plot %in% plot,]
+    id <- input$mymap_marker_click$id
+    sites %>%
+      filter(plot %in% id)
     
   })
   
@@ -243,7 +244,9 @@ server <- function(input, output) {
   output$plot <- renderPlot({
     
     ggplot(data = temp(), aes(x = surveyYear, y = speciesRichness)) +
-      geom_point() +
+      geom_point(color = "black") +
+      scale_y_continuous(limits = c(0, 40)) +
+      labs(x = "Aufnahmejahr", y = "Artendichte (25 m²)") +
       theme_mb()
     
   })
@@ -251,5 +254,5 @@ server <- function(input, output) {
 
 
 ## 3 Run app ################################################################
-
-runApp(shinyApp(ui, server), launch.browser = TRUE)
+shinyApp(ui, server)
+#runApp(shinyApp(ui, server), launch.browser = TRUE)
