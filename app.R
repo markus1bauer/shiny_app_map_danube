@@ -22,6 +22,7 @@ library(htmltools)
 library(mapview)
 library(shiny)
 library(shinydashboard)
+library(ggrepel)
 
 ### Start ###
 rm(list = ls())
@@ -38,12 +39,19 @@ sites <- read_csv(here("data", "processed", "data_processed_sites.csv"),
                      plot = "c",
                      surveyYear = "d"
                    )
-)
+) %>%
+  filter(accumulatedCov > 0)
 
 plots <- st_read(here("data", "processed", "spatial",
                       "sites_epsg4326.shp")) %>%
-  rename(location = locatin, constructionYear = cnstrcY) %>%
+  select(plot, geometry) %>%
+  left_join(sites %>%
+              select(plot, location, exposition, side) %>%
+              group_by(plot) %>%
+              slice(1),
+              by = "plot") %>%
   mutate(plot = as.character(as.numeric(plot)))
+  
 
 
 wms_flood <- "https://www.lfu.bayern.de/gdi/wms/wasser/ueberschwemmungsgebiete?"
@@ -116,11 +124,9 @@ sidebar <- dashboardSidebar(
 
 ### c Body --------------------------------------------------------------------
 body <- dashboardBody(
-  tags$style(
-    type = "text/css", "#mymap {height: calc(70vh - 80px) !important;}"
-    ),
-  leafletOutput("mymap"),
-  plotOutput("plot")
+  #tags$style(type = "text/css", "#mymap {height: calc(70vh - 80px) !important;}"),
+  leafletOutput("mymap", height = "60vh"),
+  plotOutput("plot", height = "32vh", width = "50vh")
   )
 
 ### d Dashboard page ---------------------------------------------------------
@@ -146,7 +152,7 @@ server <- function(input, output) {
     leaflet() %>%
       addTiles(group = "OSM") %>%
       addProviderTiles("Esri.WorldTopoMap", group = "Esri") %>%
-      setView(lng = 12.885, lat = 48.839, zoom = 10) %>%
+      setView(lng = 12.885, lat = 48.800, zoom = 11) %>%
       
       ### b Add layer control -------------------------------------------------
     addLayersControl(
@@ -183,7 +189,8 @@ server <- function(input, output) {
       popup = ~ paste0(
         "<b>", htmlEscape(location), "</b>", "<br/>",
         "ID: ", htmlEscape(plot), "</b>", "<br/>",
-        "Baujahr Deich: ", htmlEscape(constructionYear)
+        "Exposition: ", htmlEscape(exposition), "</b>", "<br/>",
+        "Seite: ", htmlEscape(side)
       ),
       label = ~ paste0(location, " (ID: ", plot, ")"),
       group = "Plots"
@@ -237,7 +244,7 @@ server <- function(input, output) {
       
       data <- sites %>%
         rename(y = speciesRichness) %>%
-        select(plot, surveyYear, y)
+        select(location, plot, surveyYear, y, biotopeType)
       
     } else {
       
@@ -245,13 +252,13 @@ server <- function(input, output) {
         
         data <- sites %>%
           rename(y = biotopePoints) %>%
-          select(plot, surveyYear, y)
+          select(location, plot, surveyYear, y, biotopeType)
         
       } else {
         
         data <- sites %>%
           rename(y = rlgRichness) %>%
-          select(plot, surveyYear, y)
+          select(location, plot, surveyYear, y, biotopeType)
         
       }
     }
@@ -264,32 +271,90 @@ server <- function(input, output) {
       
     })
     
-    #### General plot temperature ####
+    #### Create Plot ####
     if(input$response == "speciesRichness"){
       
-      ggplot(data = temp(), aes(x = surveyYear, y = y)) +
+      ggplot(data = temp(), aes(x = surveyYear, y = y,
+                                label = biotopeType)) +
+        geom_text_repel(
+          nudge_y      = Inf,
+          direction    = "x",
+          segment.size = .1,
+          segment.color = "grey80"
+        ) +
         geom_line() +
-        scale_y_continuous(limits = c(0, 40)) +
-        labs(x = "Aufnahmejahr", y = "Artendichte (25 m²)") +
+        geom_point() +
+        scale_y_continuous(limits = c(0, 50), breaks = seq(0, 50, 5)) +
+        scale_x_continuous(limits = c(min(sites$surveyYear),
+                                      max(sites$surveyYear))) +
+        labs(x = "Aufnahmejahr",
+             y = "Artendichte (25 m²)",
+             title = paste0(htmlEscape(temp()$location[1]),
+                            ". ID: ", htmlEscape(temp()$plot[1]))) +
         theme_mb()
       
     } else {
       
       if(input$response == "biotopePoints") {
         
-        ggplot(data = temp(), aes(x = surveyYear, y = y)) +
+        ggplot(data = temp(), aes(x = surveyYear, y = y,
+                                  label = biotopeType)) +
+          annotate("rect",
+                   xmin = min(sites$surveyYear),
+                   xmax = max(sites$surveyYear),
+                   ymin = 11.5, ymax = 15,
+                   alpha = .4, fill = "green3"
+          ) +
+          annotate("rect",
+                   xmin = min(sites$surveyYear),
+                   xmax = max(sites$surveyYear),
+                   ymin = 8.5, ymax = 11.5,
+                   alpha = .4, fill = "green"
+          ) +
+          annotate("rect",
+                   xmin = min(sites$surveyYear),
+                   xmax = max(sites$surveyYear),
+                   ymin = 0, ymax = 8.5,
+                   alpha = .4, fill = "red"
+          ) +
+          geom_text_repel(
+            nudge_y      = Inf,
+            direction    = "x",
+            segment.size = .1,
+            segment.color = "grey60"
+          ) +
           geom_line() +
-          scale_y_continuous(limits = c(0, 15), breaks = seq(0, 15, 1)) +
-          labs(x = "Aufnahmejahr", y = "Biotopwertpunkte") +
+          geom_point() +
+          scale_y_continuous(limits = c(0, 15), breaks = seq(0, 15, 1),
+                             expand = expansion(add = c(0, 1))
+                             ) +
+          scale_x_continuous(limits = c(min(sites$surveyYear),
+                                        max(sites$surveyYear))) +
+          labs(x = "Aufnahmejahr",
+               y = "Biotopwertpunkte",
+               title = paste0(htmlEscape(temp()$location[1]),
+                              ". ID: ", htmlEscape(temp()$plot[1]))) +
           theme_mb()
         
       } else {
         
-        ggplot(data = temp(), aes(x = surveyYear, y = y)) +
+        ggplot(data = temp(), aes(x = surveyYear, y = y,
+                                  label = biotopeType)) +
+          geom_text_repel(
+            nudge_y      = Inf,
+            direction    = "x",
+            segment.size = .1,
+            segment.color = "grey80"
+          ) +
           geom_line() +
-          scale_y_continuous(limits = c(0, 15), breaks = seq(0, 15, 5)) +
+          geom_point() +
+          scale_y_continuous(limits = c(0, 8), breaks = seq(0, 15, 1)) +
+          scale_x_continuous(limits = c(min(sites$surveyYear),
+                                        max(sites$surveyYear))) +
           labs(x = "Aufnahmejahr",
-               y = "Artendichte Rote Liste Deutschland (25 m²)") +
+               y = "Artendichte Rote Liste Deutschland (25 m²)",
+               title = paste0(htmlEscape(temp()$location[1]),
+                              ". ID: ", htmlEscape(temp()$plot[1]))) +
           theme_mb()
         
       }
@@ -301,5 +366,5 @@ server <- function(input, output) {
 
 
 ## 3 Run app ################################################################
-shinyApp(ui, server)
-#runApp(shinyApp(ui, server), launch.browser = TRUE)
+#shinyApp(ui, server)
+runApp(shinyApp(ui, server), launch.browser = TRUE)
