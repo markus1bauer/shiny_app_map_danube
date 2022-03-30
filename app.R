@@ -366,5 +366,4 @@ server <- function(input, output) {
 
 
 ## 3 Run app ################################################################
-#shinyApp(ui, server)
-runApp(shinyApp(ui, server), launch.browser = TRUE)
+shinyApp(ui, server)
