@@ -230,31 +230,71 @@ server <- function(input, output) {
   
   ### d Plot -------------------------------------------------------
   
-  #### Generate data in reactive ####
-  if(input$response == "speciesRichness"){
-    data <- sites %>%
-      select(plot, speciesRichness)
-  } else {
-    data <- sites %>%
-      select(plot, biotopePoints)
-  }
-  
-  temp <- reactive({
-    
-    id <- input$mymap_marker_click$id
-    sites %>%
-      filter(plot %in% id)
-    
-  })
-  
-  #### Create plot ####
   output$plot <- renderPlot({
     
-    ggplot(data = temp(), aes(x = surveyYear, y = speciesRichness)) +
-      geom_point() +
-      scale_y_continuous(limits = c(0, 40)) +
-      labs(x = "Aufnahmejahr", y = "Artendichte (25 m²)") +
-      theme_mb()
+    #### Data ####
+    if(input$response == "speciesRichness"){
+      
+      data <- sites %>%
+        rename(y = speciesRichness) %>%
+        select(plot, surveyYear, y)
+      
+    } else {
+      
+      if(input$response == "biotopePoints") {
+        
+        data <- sites %>%
+          rename(y = biotopePoints) %>%
+          select(plot, surveyYear, y)
+        
+      } else {
+        
+        data <- sites %>%
+          rename(y = rlgRichness) %>%
+          select(plot, surveyYear, y)
+        
+      }
+    }
+    
+    temp <- reactive({
+      
+      id <- input$mymap_marker_click$id
+      data %>%
+        filter(plot %in% id)
+      
+    })
+    
+    #### General plot temperature ####
+    if(input$response == "speciesRichness"){
+      
+      ggplot(data = temp(), aes(x = surveyYear, y = y)) +
+        geom_line() +
+        scale_y_continuous(limits = c(0, 40)) +
+        labs(x = "Aufnahmejahr", y = "Artendichte (25 m²)") +
+        theme_mb()
+      
+    } else {
+      
+      if(input$response == "biotopePoints") {
+        
+        ggplot(data = temp(), aes(x = surveyYear, y = y)) +
+          geom_line() +
+          scale_y_continuous(limits = c(0, 15), breaks = seq(0, 15, 1)) +
+          labs(x = "Aufnahmejahr", y = "Biotopwertpunkte") +
+          theme_mb()
+        
+      } else {
+        
+        ggplot(data = temp(), aes(x = surveyYear, y = y)) +
+          geom_line() +
+          scale_y_continuous(limits = c(0, 15), breaks = seq(0, 15, 5)) +
+          labs(x = "Aufnahmejahr",
+               y = "Artendichte Rote Liste Deutschland (25 m²)") +
+          theme_mb()
+        
+      }
+    }
+    
     
   })
 }
