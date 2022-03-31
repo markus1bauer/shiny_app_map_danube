@@ -4,7 +4,7 @@
 
 You can open this dashboard with following link:
 
-[shinyapps.io](https://markusbauer.shinyapps.io/map_danube/)
+[markusbauer.shinyapps.io/map_danube](https://markusbauer.shinyapps.io/map_danube/)
 
 or run following code in RStudio:
 
