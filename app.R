@@ -39,8 +39,7 @@ sites <- read_csv(here("data", "processed", "data_processed_sites.csv"),
                      plot = "c",
                      surveyYear = "d"
                    )
-) %>%
-  filter(accumulatedCov > 0)
+)
 
 plots <- st_read(here("data", "processed", "spatial",
                       "sites_epsg4326.shp")) %>%
@@ -93,7 +92,7 @@ theme_mb <- function(){
 header <- dashboardHeader(
   title = "Deichgruenland Donau",
   titleWidth = 300,
-  tags$li(a(href = "https://github.com/markus1bauer", 
+  tags$li(a(href = "https://github.com/markus1bauer/shiny_app_map_danube", 
             icon("github", 
                  lib = "font-awesome",
                  height = "30px"),
@@ -113,8 +112,7 @@ sidebar <- dashboardSidebar(
         inputId = "response", 
         label = "Zeige:",
         choices = c("Artenzahl" = "speciesRichness",
-                    "Rote-Liste-Arten" = "rlgRichness",
-                    #"FFH-Lebensraumtyp" = "ffh",
+                    "Rote Liste Deutschland" = "rlgRichness",
                     "Biotopwertpunkte" = "biotopePoints")
       )
     )
@@ -124,9 +122,11 @@ sidebar <- dashboardSidebar(
 
 ### c Body --------------------------------------------------------------------
 body <- dashboardBody(
-  #tags$style(type = "text/css", "#mymap {height: calc(70vh - 80px) !important;}"),
-  leafletOutput("mymap", height = "60vh"),
-  plotOutput("plot", height = "32vh", width = "50vh")
+  leafletOutput("mymap", height = "55vh"),
+  fluidRow(
+    box(plotOutput("plot", height = "34vh", width = "55vh")),
+    box(htmlOutput("text"))
+    )
   )
 
 ### d Dashboard page ---------------------------------------------------------
@@ -276,6 +276,14 @@ server <- function(input, output) {
       
       ggplot(data = temp(), aes(x = surveyYear, y = y,
                                 label = biotopeType)) +
+        geom_hline(aes(yintercept = mean(data$y)),
+                   color = "grey70", size = .25) +
+        geom_hline(aes(yintercept = mean(data$y) + 0.5 * sd(data$y)),
+                   color = "grey70", linetype = "dashed", size = .25) +
+        geom_hline(aes(yintercept = mean(data$y) - 0.5 * sd(data$y)),
+                   color = "grey70", linetype = "dashed", size = .25) +
+        #annotate("text", label = "overall mean with SD",
+        #y = mean(temp()$y) + 2, x = max(temp()$surveyYear) - 0.5) +
         geom_text_repel(
           nudge_y      = Inf,
           direction    = "x",
@@ -317,6 +325,12 @@ server <- function(input, output) {
                    ymin = 0, ymax = 8.5,
                    alpha = .4, fill = "red"
           ) +
+          geom_hline(aes(yintercept = mean(data$y)),
+                     color = "grey70", size = .25) +
+          geom_hline(aes(yintercept = mean(data$y) + 0.5 * sd(data$y)),
+                     color = "grey70", linetype = "dashed", size = .25) +
+          geom_hline(aes(yintercept = mean(data$y) - 0.5 * sd(data$y)),
+                     color = "grey70", linetype = "dashed", size = .25) +
           geom_text_repel(
             nudge_y      = Inf,
             direction    = "x",
@@ -327,7 +341,7 @@ server <- function(input, output) {
           geom_point() +
           scale_y_continuous(limits = c(0, 15), breaks = seq(0, 15, 1),
                              expand = expansion(add = c(0, 1))
-                             ) +
+          ) +
           scale_x_continuous(limits = c(min(sites$surveyYear),
                                         max(sites$surveyYear))) +
           labs(x = "Aufnahmejahr",
@@ -340,6 +354,12 @@ server <- function(input, output) {
         
         ggplot(data = temp(), aes(x = surveyYear, y = y,
                                   label = biotopeType)) +
+          geom_hline(aes(yintercept = mean(data$y)),
+                     color = "grey70", size = .25) +
+          geom_hline(aes(yintercept = mean(data$y) + 0.5 * sd(data$y)),
+                     color = "grey70", linetype = "dashed", size = .25) +
+          geom_hline(aes(yintercept = mean(data$y) - 0.5 * sd(data$y)),
+                     color = "grey70", linetype = "dashed", size = .25) +
           geom_text_repel(
             nudge_y      = Inf,
             direction    = "x",
@@ -359,11 +379,53 @@ server <- function(input, output) {
         
       }
     }
-    
-    
+  })
+  
+  ### e Text -------------------------------------------------------------------
+  output$text <- renderUI({
+    div(
+      HTML("Die <span style = color:lightgrey><strong>grauen Linien</strong></span> zeigen den übergreifenden Mittelwert mit der Standardabweichung."),
+      br(),
+      br(),
+      "Diese App wurde erstellt von ",
+      a("Markus Bauer",
+        href="https://orcid.org/0000-0001-5372-4174",
+        target="_blank"),
+      "und der Code kann auf ",
+      a("GitHub",
+        href="https://github.com/markus1bauer/shiny_app_map_danube",
+        target="_blank"),
+      " abgerufen werden.",
+      br(),
+      br(),
+      "Datennachweis:",
+      br(),
+      br(),
+      "Vegetationsdaten: Bauer M, Huber J & Kollmann J (2022) Data and code for Bauer et al. (submitted) Restored dike grasslands (v1.0.2) [Data set]. Zenodo. ",
+      a("https://doi.org/10.5281/zenodo.6334100", 
+        href="https://doi.org/10.5281/zenodo.6334100",
+        target="_blank"),
+      br(),
+      "HQ100: ",
+      a("Bayerisches Landesamt für Umwelt (LfU)", 
+        href="https://www.lfu.bayern.de/umweltdaten/geodatendienste/index_detail.htm?id=4cab2c12-fa7e-49c3-97ba-f4f33af3a598&profil=WMS",
+        target="_blank"),
+      br(),
+      "FFH-Gebiet: ",
+      a("Bayerisches Landesamt für Umwelt (LfU)", 
+        href="https://www.lfu.bayern.de/umweltdaten/geodatendienste/index_detail.htm?id=1e025cc4-d4b1-378e-9924-45950aef2334&profil=WMS",
+        target="_blank"),
+      br(),
+      br(),
+      "Status: 2022-03-31",
+      br(),
+      br(),
+      br()
+    )
   })
 }
 
 
 ## 3 Run app ################################################################
 shinyApp(ui, server)
+#rsconnect::showLogs()

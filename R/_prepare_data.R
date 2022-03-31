@@ -10,10 +10,6 @@ library(here)
 library(tidyverse)
 library(naniar) # are_na
 library(lubridate) # modify dates
-library(vegan) # metaMDS
-library(adespatial)
-remotes::install_github(file.path("larsito", "tempo"))
-library(tempo) # calc_sync
 
 ### Start ###
 # installr::updateR(browse_news = FALSE, install_R = TRUE, copy_packages = TRUE, copy_Rprofile.site = TRUE, keep_old_packages = TRUE, update_packages = TRUE, start_new_R = FALSE, quit_R = TRUE, print_R_versions = TRUE, GUI = TRUE)
@@ -187,45 +183,6 @@ traits[duplicated(traits$abb), ]
 # traits$name[which(!(traits$name %in% species$name))]
 species$name[which(!(species$name %in% traits$name))]
 traits <- semi_join(traits, species, by = "name")
-
-
-### 4 Check data frames ################################################
-
-### Check typos ###
-sites %>%
-  filter(!str_detect(id, "_seeded$")) %>%
-  janitor::tabyl(vegetationCov)
-# sites %>% filter(vegetationCov == 17)
-species %>%
-  select(-name) %>%
-  unlist() %>%
-  janitor::tabyl()
-species %>% # Check special typos
-  pivot_longer(-name, names_to = "id", values_to = "value") %>%
-  filter(value == 8)
-
-### Compare vegetationCov and accumulatedCov ###
-species %>%
-  summarise(across(where(is.double), ~ sum(.x, na.rm = TRUE))) %>%
-  pivot_longer(cols = everything(), names_to = "id", values_to = "value") %>%
-  mutate(id = factor(id)) %>%
-  full_join(sites, by = "id") %>%
-  mutate(diff = (value - vegetationCov)) %>%
-  select(id, surveyYear, value, vegetationCov, diff) %>%
-  filter(diff > 50 | diff < -30) %>%
-  arrange(diff) %>%
-  print(n = 100)
-
-### Check plots over time ###
-species %>%
-  select(name, starts_with("X01")) %>%
-  filter(if_any(starts_with("X"), ~ . > 0)) %>%
-  print(n = 70)
-
-### Check missing data ###
-miss_var_summary(sites, order = TRUE)
-vis_miss(sites, cluster = FALSE, sort_miss = TRUE)
-vis_miss(traits, cluster = FALSE, sort_miss = TRUE)
 
 rm(list = ls(pattern = "[^species|traits|sites]"))
 
@@ -485,7 +442,7 @@ data <- species %>%
   pivot_longer(-name, names_to = "id", values_to = "value") %>%
   pivot_wider(names_from = "name", values_from = "value") %>%
   column_to_rownames("id") %>%
-  diversity(index = "shannon") %>%
+  vegan::diversity(index = "shannon") %>%
   as_tibble(rownames = NA) %>%
   rownames_to_column(var = "id") %>%
   mutate(id = factor(id)) %>%
@@ -719,23 +676,27 @@ sites <- sites %>%
 ### b Final selection of variables -------------------------------------
 
 sites <- sites %>%
+  filter(accumulatedCov > 0) %>%
   select(
     id, plot, block,
     # space
-    location, locationAbb, locationYear, latitude, longitude, riverkm,
-    distanceRiver,
+    location, locationYear, riverkm, distanceRiver,
     # time
-    surveyYear, constructionYear, plotAge,
+    surveyYear,
     # local site characteristics
     exposition, side,
     # response variables
-    accumulatedCov, speciesRichness, eveness, graminoidCovratio, ruderalCov,
+    accumulatedCov, speciesRichness,
     # conservation
-    targetRichness, targetRichratio, rlgRichness, targetCovratio,
+    rlgRichness,
     # legal evaluation
-    biotopeType, ffh, changeType, baykompv, biotopePoints, min8, min9,
+    biotopeType, ffh, biotopePoints,
     botanist
-  )
+    # not included
+    # response variables:  shannon, eveness, graminoidCovratio, ruderalCov
+    # conservation: targetRichness, targetRichratio, targetCovratio
+    # legal evaluation: changeType, baykompv, min8, min9
+    )
 
 
 
