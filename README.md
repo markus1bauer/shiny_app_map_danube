@@ -27,7 +27,7 @@ This work is licensed under a
 
 Data was retrieved from
 
-Vegetation data: [Bauer et al. (2022)](https://doi.org/10.5281/zenodo.6107807)
+Vegetation data: [Bauer et al. (2022) Zenodo](https://doi.org/10.5281/zenodo.6334100)
 
 HQ100: [Bayerisches Landesamt für Umwelt (LfU)](https://www.lfu.bayern.de/umweltdaten/geodatendienste/index_detail.htm?id=4cab2c12-fa7e-49c3-97ba-f4f33af3a598&profil=WMS)
 
