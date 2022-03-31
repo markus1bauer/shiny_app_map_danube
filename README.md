@@ -27,7 +27,7 @@ This work is licensed under a
 
 Data was retrieved from
 
-Vegetation data: Bauer M, Huber J & Kollmann J (2022) Data and code for Bauer et al. (submitted): Restored dike grasslands (v1.0.2) [Data set]. "--" *Zenodo*. [https://doi.org/10.5281/zenodo.6334100](https://doi.org/10.5281/zenodo.6334100)
+Vegetation data: Bauer M, Huber J & Kollmann J (2022) Data and code for Bauer et al. (submitted): Restored dike grasslands (v1.0.2) [Data set]. — *Zenodo*. [https://doi.org/10.5281/zenodo.6334100](https://doi.org/10.5281/zenodo.6334100)
 
 HQ100: [Bayerisches Landesamt für Umwelt (LfU)](https://www.lfu.bayern.de/umweltdaten/geodatendienste/index_detail.htm?id=4cab2c12-fa7e-49c3-97ba-f4f33af3a598&profil=WMS)
 
