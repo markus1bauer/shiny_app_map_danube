@@ -12,6 +12,14 @@ or run following code in RStudio:
 
 ***
 
+__Package versioning__
+
+The used versions of R and the packages are saved in `2022_waste_bricks_trees/renv.lock`.
+
+You can restore this state by executing `renv::restore()` in the console.
+
+***
+
 [![CC0][cc0-shield]][cc0]
 
 This work is licensed under a
