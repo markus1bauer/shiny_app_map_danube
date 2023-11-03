@@ -294,11 +294,11 @@ server <- function(input, output) {
       ggplot(data = temp(), aes(x = surveyYear, y = y,
                                 label = biotopeType)) +
         geom_hline(aes(yintercept = mean(data$y)),
-                   color = "grey70", size = .25) +
+                   color = "grey70", linewidth = .25) +
         geom_hline(aes(yintercept = mean(data$y) + 0.5 * sd(data$y)),
-                   color = "grey70", linetype = "dashed", size = .25) +
+                   color = "grey70", linetype = "dashed", linewidth = .25) +
         geom_hline(aes(yintercept = mean(data$y) - 0.5 * sd(data$y)),
-                   color = "grey70", linetype = "dashed", size = .25) +
+                   color = "grey70", linetype = "dashed", linewidth = .25) +
         #annotate("text", label = "overall mean with SD",
         #y = mean(temp()$y) + 2, x = max(temp()$surveyYear) - 0.5) +
         geom_text_repel(
@@ -342,12 +342,20 @@ server <- function(input, output) {
                    ymin = 0, ymax = 8.5,
                    alpha = .4, fill = "red"
           ) +
-          geom_hline(aes(yintercept = mean(data$y)),
-                     color = "grey70", size = .25) +
-          geom_hline(aes(yintercept = mean(data$y) + 0.5 * sd(data$y)),
-                     color = "grey70", linetype = "dashed", size = .25) +
-          geom_hline(aes(yintercept = mean(data$y) - 0.5 * sd(data$y)),
-                     color = "grey70", linetype = "dashed", size = .25) +
+          geom_hline(
+            aes(yintercept = mean(data$y)),
+            color = "grey70",
+            linewidth = .25) +
+          geom_hline(
+            aes(yintercept = mean(data$y) + 0.5 * sd(data$y)),
+            color = "grey70",
+            linetype = "dashed",
+            linewidth = .25) +
+          geom_hline(
+            aes(yintercept = mean(data$y) - 0.5 * sd(data$y)),
+            color = "grey70",
+            linetype = "dashed",
+            linewidth = .25) +
           geom_text_repel(
             nudge_y      = Inf,
             direction    = "x",
@@ -371,12 +379,20 @@ server <- function(input, output) {
         
         ggplot(data = temp(), aes(x = surveyYear, y = y,
                                   label = biotopeType)) +
-          geom_hline(aes(yintercept = mean(data$y)),
-                     color = "grey70", size = .25) +
-          geom_hline(aes(yintercept = mean(data$y) + 0.5 * sd(data$y)),
-                     color = "grey70", linetype = "dashed", size = .25) +
-          geom_hline(aes(yintercept = mean(data$y) - 0.5 * sd(data$y)),
-                     color = "grey70", linetype = "dashed", size = .25) +
+          geom_hline(
+            aes(yintercept = mean(data$y)),
+            color = "grey70",
+            linewidth = .25) +
+          geom_hline(
+            aes(yintercept = mean(data$y) + 0.5 * sd(data$y)),
+            color = "grey70",
+            linetype = "dashed",
+            linewidth = .25) +
+          geom_hline(
+            aes(yintercept = mean(data$y) - 0.5 * sd(data$y)),
+            color = "grey70",
+            linetype = "dashed",
+            linewidth = .25) +
           geom_text_repel(
             nudge_y      = Inf,
             direction    = "x",
@@ -386,8 +402,9 @@ server <- function(input, output) {
           geom_line() +
           geom_point() +
           scale_y_continuous(limits = c(0, 8), breaks = seq(0, 15, 1)) +
-          scale_x_continuous(limits = c(min(sites$surveyYear),
-                                        max(sites$surveyYear))) +
+          scale_x_continuous(
+            limits = c(min(sites$surveyYear), max(sites$surveyYear))
+            ) +
           labs(x = "Aufnahmejahr",
                y = "Artendichte Rote Liste Deutschland (25 m²)",
                title = paste0(htmlEscape(temp()$location[1]),
@@ -418,6 +435,11 @@ server <- function(input, output) {
       "Datennachweis:",
       br(),
       br(),
+      "Publication: Bauer M, Huber J & Kollmann J (2022) EcoEvoRxiv",
+      a("https://doi.org/10.32942/X2959J", 
+        href="https://doi.org/10.32942/X2959J",
+        target="_blank"),
+      br(),
       "Vegetationsdaten: Bauer M, Huber J & Kollmann J (2022) Data and code for Bauer et al. (submitted) Restored dike grasslands (v1.0.2) [Data set]. Zenodo. ",
       a("https://doi.org/10.5281/zenodo.6334100", 
         href="https://doi.org/10.5281/zenodo.6334100",
@@ -445,5 +467,5 @@ server <- function(input, output) {
 
 ## 3 Run app ################################################################
 shinyApp(ui, server)
-#rsconnect::showLogs()
+rsconnect::showLogs()
 
