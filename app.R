@@ -1,7 +1,7 @@
 # Dike grasslands along River Danube
-# Interactive map ####
+# Interactive map as Shiny app ####
 # Markus Bauer
-# 2022-03-24
+# 2023-11-03
 
 
 
@@ -10,45 +10,58 @@
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
+
 ### Packages ###
 library(here)
 library(tidyverse)
 library(sf)
 library(ggmap)
+library(ggrepel)
 library(leaflet)
 library(leaflet.extras)
 library(leaflet.extras2)
 library(htmltools)
 library(mapview)
+library(renv)
 library(shiny)
 library(shinydashboard)
-library(ggrepel)
 
 ### Start ###
 rm(list = ls())
-rsconnect::setAccountInfo(name='markusbauer',
-               token='BB9C744354C19D1217D8FAD42760C1ED',
-               secret='5XG8BIuY7IF40mc6OO7TUSMzJbZEoe4lH5Q8aEGf')
+renv::status()
+#installr::updateR(browse_news = FALSE, install_R = TRUE, copy_packages = TRUE, copy_Rprofile.site = TRUE, keep_old_packages = TRUE, update_packages = TRUE, start_new_R = FALSE, quit_R = TRUE, print_R_versions = TRUE, GUI = TRUE)
+#sessionInfo()
+
+rsconnect::setAccountInfo(
+  name = 'markusbauer',
+  token = 'BB9C744354C19D1217D8FAD42760C1ED',
+  secret = '5XG8BIuY7IF40mc6OO7TUSMzJbZEoe4lH5Q8aEGf'
+  )
 
 ### Load data ###
-sites <- read_csv(here("data", "processed", "data_processed_sites.csv"),
-                 col_names = TRUE,
-                 na = c("na", "NA"), col_types =
-                   cols(
-                     .default = "?",
-                     plot = "c",
-                     surveyYear = "d"
-                   )
+sites <- read_csv(
+  here("data", "processed", "data_processed_sites.csv"),
+  col_names = TRUE,
+  na = c("na", "NA"),
+  col_types =
+    cols(
+      .default = "?",
+      plot = "c",
+      surveyYear = "d"
+    )
 )
 
-plots <- st_read(here("data", "processed", "spatial",
-                      "sites_epsg4326.shp")) %>%
+plots <- st_read(
+  here("data", "processed", "spatial", "sites_epsg4326.shp")
+  ) %>%
   select(plot, geometry) %>%
-  left_join(sites %>%
-              select(plot, location, exposition, side) %>%
-              group_by(plot) %>%
-              slice(1),
-              by = "plot") %>%
+  left_join(
+    sites %>%
+      select(plot, location, exposition, side) %>%
+      group_by(plot) %>%
+      slice(1),
+    by = "plot"
+  ) %>%
   mutate(plot = as.character(as.numeric(plot)))
   
 
@@ -57,8 +70,9 @@ wms_flood <- "https://www.lfu.bayern.de/gdi/wms/wasser/ueberschwemmungsgebiete?"
 
 ffh_area <- "https://www.lfu.bayern.de/gdi/wms/natur/schutzgebiete?"
 
-dikes <- st_read(here("data", "processed", "spatial",
-                      "dikes_epsg4326.shp"))
+dikes <- st_read(
+  here("data", "processed", "spatial", "dikes_epsg4326.shp")
+  )
 
 
 ### Create theme ###
