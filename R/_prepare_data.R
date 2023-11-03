@@ -12,15 +12,8 @@ library(naniar) # are_na
 library(lubridate) # modify dates
 
 ### Start ###
-# installr::updateR(browse_news = FALSE, install_R = TRUE, copy_packages = TRUE, copy_Rprofile.site = TRUE, keep_old_packages = TRUE, update_packages = TRUE, start_new_R = FALSE, quit_R = TRUE, print_R_versions = TRUE, GUI = TRUE)
-# sessionInfo()
-#remotes::install_github(file.path("inbo", "checklist"))
-#checklist::setup_source()
-#checklist::check_source()
-#devtools::check()
-
-rm(list = ls())
-setwd(here("data", "raw"))
+installr::updateR(browse_news = FALSE, install_R = TRUE, copy_packages = TRUE, copy_Rprofile.site = TRUE, keep_old_packages = TRUE, update_packages = TRUE, start_new_R = FALSE, quit_R = TRUE, print_R_versions = TRUE, GUI = TRUE)
+#sessionInfo()
 
 
 
@@ -29,11 +22,15 @@ setwd(here("data", "raw"))
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
+
 ### 1 Sites ############################################################
 
-sites <- read_csv("data_raw_sites.csv",
+
+sites <- read_csv(
+  here("data", "raw", "data_raw_sites.csv"),
   col_names = TRUE,
-  na = c("", "NA", "na"), col_types =
+  na = c("", "NA", "na"),
+  col_types =
     cols(
       .default = "?",
       id = "f",
@@ -109,7 +106,8 @@ sites <- read_csv("data_raw_sites.csv",
 
 ### 2 Species #########################################################
 
-species <- data.table::fread("data_raw_species.csv",
+species <- data.table::fread(
+  here("data", "raw", "data_raw_species.csv"),
   sep = ",",
   dec = ".",
   skip = 0,
@@ -147,7 +145,8 @@ specieslist <- species %>%
 
 ### 3 Traits ##########################################################
 
-traits <- read_csv("data_raw_traits.csv",
+traits <- read_csv(
+  here("data", "raw", "data_raw_traits.csv"),
   col_names = TRUE, na = c("", "NA", "na"),
   col_types =
     cols(
