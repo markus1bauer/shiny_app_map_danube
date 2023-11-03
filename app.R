@@ -28,7 +28,7 @@ library(shinydashboard)
 
 ### Start ###
 rm(list = ls())
-renv::status()
+#renv::status()
 #installr::updateR(browse_news = FALSE, install_R = TRUE, copy_packages = TRUE, copy_Rprofile.site = TRUE, keep_old_packages = TRUE, keep_install_file = TRUE, update_packages = TRUE, start_new_R = FALSE, quit_R = TRUE, print_R_versions = TRUE, GUI = TRUE)
 #sessionInfo()
 
@@ -70,9 +70,12 @@ wms_flood <- "https://www.lfu.bayern.de/gdi/wms/wasser/ueberschwemmungsgebiete?"
 
 ffh_area <- "https://www.lfu.bayern.de/gdi/wms/natur/schutzgebiete?"
 
-dikes <- st_read(
-  here("data", "processed", "spatial", "dikes_epsg4326.shp")
-  )
+st_layers(here("data", "processed", "spatial", "sites_epsg4326.shp"))
+
+dikes <- st_read(here("data", "processed", "spatial", "dikes_epsg4326.shp")) %>%
+  select(
+    BAUJAHR, SANIERUNG, GWO_L, L_GEW_KNZ, LKR_L, GEM_L, WWA_L, BETREIBE_L, LAGE_FLI_L, geometry
+    )
 
 
 ### Create theme ###
@@ -443,3 +446,4 @@ server <- function(input, output) {
 ## 3 Run app ################################################################
 shinyApp(ui, server)
 #rsconnect::showLogs()
+
