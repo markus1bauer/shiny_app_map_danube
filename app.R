@@ -11,7 +11,7 @@
 
 
 
-# RUN WITH R 4.1.0 from 2021
+# RUN WITH R 4.1.3 from 2022 because shiny is not working with newer version
 
 ### Packages ###
 library(here)
@@ -24,9 +24,9 @@ library(leaflet.extras)
 library(leaflet.extras2)
 library(htmltools)
 library(mapview)
-library(renv)
 library(shiny)
 library(shinydashboard)
+library(renv)
 
 ### Start ###
 rm(list = ls())
@@ -105,7 +105,9 @@ theme_mb <- function(){
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
+
 ## 1 UI #######################################################################
+
 
 ### a Header ------------------------------------------------------------------
 header <- dashboardHeader(
@@ -226,8 +228,9 @@ server <- function(input, output) {
         "Baujahr: ", htmlEscape(BAUJAHR), "<br/>",
         "Sanierung: ", htmlEscape(SANIERUNG)
       ),
-      highlight = highlightOptions(weight = 2, color = "blue",
-                                   opacity = .8),
+      highlight = highlightOptions(
+        weight = 2, color = "blue", opacity = .8
+        ),
       group = "Dikes"
     ) %>%
       
@@ -236,8 +239,9 @@ server <- function(input, output) {
       baseUrl = ffh_area,
       layers = "fauna_flora_habitat_gebiet",
       group = "FFH Areas",
-      options = WMSTileOptions(format = "image/png", transparent = TRUE,
-                               opacity = .7)
+      options = WMSTileOptions(
+        format = "image/png", transparent = TRUE, opacity = .7
+        )
     ) %>%
       
       #### HQ 100 ####
@@ -245,8 +249,9 @@ server <- function(input, output) {
       baseUrl = wms_flood,
       layers = "hwgf_hq100",
       group = "HQ100",
-      options = WMSTileOptions(format = "image/png", transparent = TRUE,
-                               opacity = .7)
+      options = WMSTileOptions(
+        format = "image/png", transparent = TRUE, opacity = .7
+        )
     ) %>%
       
       ### Hide groups ####
@@ -293,14 +298,26 @@ server <- function(input, output) {
     #### Create Plot ####
     if(input$response == "speciesRichness"){
       
-      ggplot(data = temp(), aes(x = surveyYear, y = y,
-                                label = biotopeType)) +
-        geom_hline(aes(yintercept = mean(data$y)),
-                   color = "grey70", linewidth = .25) +
-        geom_hline(aes(yintercept = mean(data$y) + 0.5 * sd(data$y)),
-                   color = "grey70", linetype = "dashed", linewidth = .25) +
-        geom_hline(aes(yintercept = mean(data$y) - 0.5 * sd(data$y)),
-                   color = "grey70", linetype = "dashed", linewidth = .25) +
+      ggplot(
+        data = temp(), aes(x = surveyYear, y = y, label = biotopeType)
+      ) +
+        geom_hline(
+          aes(yintercept = mean(data$y)),
+          color = "grey70",
+          linewidth = .25
+          ) +
+        geom_hline(
+          aes(yintercept = mean(data$y) + 0.5 * sd(data$y)),
+          color = "grey70",
+          linetype = "dashed",
+          linewidth = .25
+          ) +
+        geom_hline(
+          aes(yintercept = mean(data$y) - 0.5 * sd(data$y)),
+          color = "grey70",
+          linetype = "dashed",
+          linewidth = .25
+          ) +
         #annotate("text", label = "overall mean with SD",
         #y = mean(temp()$y) + 2, x = max(temp()$surveyYear) - 0.5) +
         geom_text_repel(
@@ -312,37 +329,44 @@ server <- function(input, output) {
         geom_line() +
         geom_point() +
         scale_y_continuous(limits = c(0, 50), breaks = seq(0, 50, 5)) +
-        scale_x_continuous(limits = c(min(sites$surveyYear),
-                                      max(sites$surveyYear))) +
-        labs(x = "Aufnahmejahr",
-             y = "Artendichte (25 m²)",
-             title = paste0(htmlEscape(temp()$location[1]),
-                            ". ID: ", htmlEscape(temp()$plot[1]))) +
+        scale_x_continuous(
+          limits = c(min(sites$surveyYear), max(sites$surveyYear))
+          ) +
+        labs(
+          x = "Aufnahmejahr",
+          y = "Artendichte (25 m²)",
+          title = paste0(
+            htmlEscape(
+              temp()$location[1]), ". ID: ", htmlEscape(temp()$plot[1])
+            )
+        ) +
         theme_mb()
       
     } else {
       
       if(input$response == "biotopePoints") {
         
-        ggplot(data = temp(), aes(x = surveyYear, y = y,
-                                  label = biotopeType)) +
-          annotate("rect",
-                   xmin = min(sites$surveyYear),
-                   xmax = max(sites$surveyYear),
-                   ymin = 11.5, ymax = 15,
-                   alpha = .4, fill = "green3"
+        ggplot(data = temp(), aes(x = surveyYear, y = y, label = biotopeType)) +
+          annotate(
+            "rect",
+            xmin = min(sites$surveyYear),
+            xmax = max(sites$surveyYear),
+            ymin = 11.5, ymax = 15,
+            alpha = .4, fill = "green3"
           ) +
-          annotate("rect",
-                   xmin = min(sites$surveyYear),
-                   xmax = max(sites$surveyYear),
-                   ymin = 8.5, ymax = 11.5,
-                   alpha = .4, fill = "green"
+          annotate(
+            "rect",
+            xmin = min(sites$surveyYear),
+            xmax = max(sites$surveyYear),
+            ymin = 8.5, ymax = 11.5,
+            alpha = .4, fill = "green"
           ) +
-          annotate("rect",
-                   xmin = min(sites$surveyYear),
-                   xmax = max(sites$surveyYear),
-                   ymin = 0, ymax = 8.5,
-                   alpha = .4, fill = "red"
+          annotate(
+            "rect",
+            xmin = min(sites$surveyYear),
+            xmax = max(sites$surveyYear),
+            ymin = 0, ymax = 8.5,
+            alpha = .4, fill = "red"
           ) +
           geom_hline(
             aes(yintercept = mean(data$y)),
@@ -366,21 +390,29 @@ server <- function(input, output) {
           ) +
           geom_line() +
           geom_point() +
-          scale_y_continuous(limits = c(0, 15), breaks = seq(0, 15, 1),
-                             expand = expansion(add = c(0, 1))
+          scale_y_continuous(
+            limits = c(0, 15), breaks = seq(0, 15, 1),
+            expand = expansion(add = c(0, 1))
           ) +
-          scale_x_continuous(limits = c(min(sites$surveyYear),
-                                        max(sites$surveyYear))) +
-          labs(x = "Aufnahmejahr",
-               y = "Biotopwertpunkte",
-               title = paste0(htmlEscape(temp()$location[1]),
-                              ". ID: ", htmlEscape(temp()$plot[1]))) +
+          scale_x_continuous(
+            limits = c(min(sites$surveyYear), max(sites$surveyYear))
+            ) +
+          labs(
+            x = "Aufnahmejahr",
+            y = "Biotopwertpunkte",
+            title = paste0(
+              htmlEscape(
+                temp()$location[1]), ". ID: ", htmlEscape(temp()$plot[1]
+              )
+              )
+          ) +
           theme_mb()
         
       } else {
         
-        ggplot(data = temp(), aes(x = surveyYear, y = y,
-                                  label = biotopeType)) +
+        ggplot(
+          data = temp(), aes(x = surveyYear, y = y, label = biotopeType)
+          ) +
           geom_hline(
             aes(yintercept = mean(data$y)),
             color = "grey70",
@@ -407,10 +439,14 @@ server <- function(input, output) {
           scale_x_continuous(
             limits = c(min(sites$surveyYear), max(sites$surveyYear))
             ) +
-          labs(x = "Aufnahmejahr",
-               y = "Artendichte Rote Liste Deutschland (25 m²)",
-               title = paste0(htmlEscape(temp()$location[1]),
-                              ". ID: ", htmlEscape(temp()$plot[1]))) +
+          labs(
+            x = "Aufnahmejahr",
+            y = "Artendichte Rote Liste Deutschland (25 m²)",
+            title = paste0(
+              htmlEscape(
+                temp()$location[1]), ". ID: ", htmlEscape(temp()$plot[1])
+              )
+          ) +
           theme_mb()
         
       }
