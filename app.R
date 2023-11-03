@@ -12,6 +12,7 @@
 
 
 # RUN WITH R 4.1.3 from 2022 because shiny is not working with newer version
+#'/srv/connect/apps/shiny_app_map_danube/data/raw/data_raw_sites.cs
 
 ### Packages ###
 library(here)
@@ -24,6 +25,7 @@ library(leaflet.extras)
 library(leaflet.extras2)
 library(htmltools)
 library(mapview)
+library(rsconnect)
 library(shiny)
 library(shinydashboard)
 library(renv)
@@ -76,7 +78,8 @@ st_layers(here("data", "processed", "spatial", "sites_epsg4326.shp"))
 
 dikes <- st_read(here("data", "processed", "spatial", "dikes_epsg4326.shp")) %>%
   select(
-    BAUJAHR, SANIERUNG, GWO_L, L_GEW_KNZ, LKR_L, GEM_L, WWA_L, BETREIBE_L, LAGE_FLI_L, geometry
+    BAUJAHR, SANIERUNG, GWO_L, L_GEW_KNZ, LKR_L, GEM_L, WWA_L, BETREIBE_L,
+    LAGE_FLI_L, geometry
     )
 
 
@@ -110,6 +113,7 @@ theme_mb <- function(){
 
 
 ### a Header ------------------------------------------------------------------
+
 header <- dashboardHeader(
   title = "Deichgruenland Donau",
   titleWidth = 300,
@@ -123,6 +127,7 @@ header <- dashboardHeader(
 )
 
 ### b Sidebar -----------------------------------------------------------------
+
 sidebar <- dashboardSidebar(
   width = 300,
   sidebarMenu(
@@ -142,6 +147,7 @@ sidebar <- dashboardSidebar(
 
 
 ### c Body --------------------------------------------------------------------
+
 body <- dashboardBody(
   leafletOutput("mymap", height = "55vh"),
   fluidRow(
@@ -151,6 +157,7 @@ body <- dashboardBody(
   )
 
 ### d Dashboard page ---------------------------------------------------------
+
 ui <- dashboardPage(
   header, sidebar, body,
   skin = "blue",
@@ -162,11 +169,15 @@ ui <- dashboardPage(
   )
 
 
+
 ## 2 Server ###################################################################
+
 
 server <- function(input, output) {
   
+  
   ### a Set up map -------------------------------------------------------
+  
   output$mymap <- renderLeaflet({
     
     plots %>%
@@ -175,7 +186,9 @@ server <- function(input, output) {
       addProviderTiles("Esri.WorldTopoMap", group = "Esri") %>%
       setView(lng = 12.885, lat = 48.800, zoom = 11) %>%
       
+      
       ### b Add layer control -------------------------------------------------
+    
     addLayersControl(
       baseGroups = c("OSM", "Esri"),
       overlayGroups = c("Plots", "Dikes", "FFH Areas", "HQ100"),
@@ -200,6 +213,7 @@ server <- function(input, output) {
         minimized = FALSE
       ) %>%
     
+      
       ### c Add layers -------------------------------------------------------
     
       #### Plots ####
@@ -258,6 +272,7 @@ server <- function(input, output) {
       hideGroup(c("Dikes", "FFH Areas", "HQ100"))
     
   })
+  
   
   ### d Plot -------------------------------------------------------
   
@@ -503,7 +518,10 @@ server <- function(input, output) {
 }
 
 
+
 ## 3 Run app ################################################################
+
+
 shinyApp(ui, server)
 rsconnect::showLogs()
 
