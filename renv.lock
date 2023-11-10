@@ -96,7 +96,7 @@
     },
     "RgoogleMaps": {
       "Package": "RgoogleMaps",
-      "Version": "1.4.5.3",
+      "Version": "1.5.1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -105,29 +105,10 @@
         "graphics",
         "methods",
         "png",
-        "sp",
         "stats",
         "utils"
       ],
-      "Hash": "bffdcd07380ea0a95228588f8aa93734"
-    },
-    "UpSetR": {
-      "Package": "UpSetR",
-      "Version": "1.4.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "ggplot2",
-        "grDevices",
-        "gridExtra",
-        "methods",
-        "plyr",
-        "scales",
-        "stats",
-        "utils"
-      ],
-      "Hash": "f6ef89503aaff474873f8bc1823894e1"
+      "Hash": "0cbe5e69b069ed36fcfa947779f57a9f"
     },
     "askpass": {
       "Package": "askpass",
@@ -335,20 +316,6 @@
         "utils"
       ],
       "Hash": "3f038e5ac7f41d4ac41ce658c85e3042"
-    },
-    "cluster": {
-      "Package": "cluster",
-      "Version": "2.1.4",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "grDevices",
-        "graphics",
-        "stats",
-        "utils"
-      ],
-      "Hash": "5edbbabab6ce0bf7900a74fd4358628e"
     },
     "colorspace": {
       "Package": "colorspace",
@@ -903,7 +870,7 @@
     },
     "htmltools": {
       "Package": "htmltools",
-      "Version": "0.5.6.1",
+      "Version": "0.5.7",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -916,7 +883,7 @@
         "rlang",
         "utils"
       ],
-      "Hash": "1e12fe667316a76508898839ecfb2d00"
+      "Hash": "2d7b3857980e0e0d0a1fd6f11928ab0f"
     },
     "htmlwidgets": {
       "Package": "htmlwidgets",
@@ -1192,7 +1159,7 @@
     },
     "lifecycle": {
       "Package": "lifecycle",
-      "Version": "1.0.3",
+      "Version": "1.0.4",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1201,7 +1168,7 @@
         "glue",
         "rlang"
       ],
-      "Hash": "001cecbeac1cff9301bdc3775ee46a86"
+      "Hash": "b8552d117e1b808b09a832f589b79035"
     },
     "lubridate": {
       "Package": "lubridate",
@@ -1318,32 +1285,6 @@
       ],
       "Hash": "6dfe8bf774944bd5595785e3229d8771"
     },
-    "naniar": {
-      "Package": "naniar",
-      "Version": "1.0.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "UpSetR",
-        "cli",
-        "dplyr",
-        "forcats",
-        "ggplot2",
-        "glue",
-        "magrittr",
-        "norm",
-        "purrr",
-        "rlang",
-        "stats",
-        "tibble",
-        "tidyr",
-        "vctrs",
-        "viridis",
-        "visdat"
-      ],
-      "Hash": "3a684e715cebd023880a6171e35cd02c"
-    },
     "nlme": {
       "Package": "nlme",
       "Version": "3.1-163",
@@ -1357,16 +1298,6 @@
         "utils"
       ],
       "Hash": "8d1938040a05566f4f7a14af4feadd6b"
-    },
-    "norm": {
-      "Package": "norm",
-      "Version": "1.0-11.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "stats"
-      ],
-      "Hash": "82d9d75b78bc83553c034cd5c7ed2b3c"
     },
     "openssl": {
       "Package": "openssl",
@@ -1389,17 +1320,6 @@
         "utils"
       ],
       "Hash": "55ddd2d4a1959535f18393478b0c14a6"
-    },
-    "permute": {
-      "Package": "permute",
-      "Version": "0.9-7",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "stats"
-      ],
-      "Hash": "abf0ca85c1c752e0d04f46334e635046"
     },
     "pillar": {
       "Package": "pillar",
@@ -1670,14 +1590,14 @@
     },
     "rlang": {
       "Package": "rlang",
-      "Version": "1.1.1",
+      "Version": "1.1.2",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
         "utils"
       ],
-      "Hash": "a85c767b55f0bf9b7ad16c6d7baee5bb"
+      "Hash": "50a6dbdc522936ca35afc5e2082ea91b"
     },
     "rmarkdown": {
       "Package": "rmarkdown",
@@ -1705,35 +1625,31 @@
     },
     "rprojroot": {
       "Package": "rprojroot",
-      "Version": "2.0.3",
+      "Version": "2.0.4",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R"
       ],
-      "Hash": "1de7ab598047a87bba48434ba35d497d"
+      "Hash": "4c8415e0ec1e29f3f4f6fc108bef0144"
     },
     "rsconnect": {
       "Package": "rsconnect",
-      "Version": "1.1.1",
+      "Version": "0.8.29",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
-        "cli",
         "curl",
         "digest",
         "jsonlite",
-        "lifecycle",
         "openssl",
         "packrat",
-        "renv",
-        "rlang",
         "rstudioapi",
         "tools",
         "yaml"
       ],
-      "Hash": "672fc66985074d17c86b6335105143b8"
+      "Hash": "fe178fc15af80952f546aafedf655b36"
     },
     "rstudioapi": {
       "Package": "rstudioapi",
@@ -2223,21 +2139,6 @@
       ],
       "Hash": "266c1ca411266ba8f365fcc726444b87"
     },
-    "vegan": {
-      "Package": "vegan",
-      "Version": "2.6-4",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "MASS",
-        "R",
-        "cluster",
-        "lattice",
-        "mgcv",
-        "permute"
-      ],
-      "Hash": "659fe7589b8e0b16baa49043a61a0ce0"
-    },
     "viridis": {
       "Package": "viridis",
       "Version": "0.6.4",
@@ -2260,28 +2161,6 @@
         "R"
       ],
       "Hash": "c826c7c4241b6fc89ff55aaea3fa7491"
-    },
-    "visdat": {
-      "Package": "visdat",
-      "Version": "0.6.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "cli",
-        "dplyr",
-        "forcats",
-        "ggplot2",
-        "glue",
-        "magrittr",
-        "purrr",
-        "readr",
-        "scales",
-        "stats",
-        "tibble",
-        "tidyr"
-      ],
-      "Hash": "aa0c558f21cab0196eea9b51433f2c0e"
     },
     "vroom": {
       "Package": "vroom",
