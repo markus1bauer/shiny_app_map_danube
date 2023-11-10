@@ -11,10 +11,9 @@
 
 
 
-# RUN WITH R 4.1.3 from 2022 because shiny is not working with newer version
-#'/srv/connect/apps/shiny_app_map_danube/data/raw/data_raw_sites.cs
-
 ### Packages ###
+library(rlang)
+library(dplyr)
 library(here)
 library(tidyverse)
 library(sf)
